@@ -76,11 +76,10 @@ export default {
         },
 
         registerFilters: function () {
-            const thisRef = this;
-            function compareFn (cellValue, filterValue, obj) {
-                const searchTextLowerCase = thisRef.filters.searchText.toLowerCase();
+            const compareFn = (cellValue, filterValue, obj) => {
+                const searchTextLowerCase = this.filters.searchText.toLowerCase();
 
-                if ((thisRef.filters.favoritesOnly) && (!thisRef.favorites[obj.id]))
+                if ((this.filters.favoritesOnly) && (!this.favorites[obj.id]))
                     return false;
 
                 if (obj.title.toLowerCase().indexOf(searchTextLowerCase) >= 0)
