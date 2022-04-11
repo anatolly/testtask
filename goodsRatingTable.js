@@ -12,34 +12,32 @@ export default {
     `,
 
     data() {
-        let thisVueCompRef = this;
-
         return {
             data: data,
-            filteredGoods: {},
             favorites: {},
             filters: {
                 searchText: '',
                 favoritesOnly: false
             },
+            goodsRatingTableWebixCtrl: null,
 
             webixUIConfig: {
                 view: 'datatable',
                 id: 'goodsRatingTableWebixCtrl',
                 css: "webix_header_border",
                 autoConfig: true,
-                autoheight:true,
+                autoheight: true,
                 scrollX: false,
                 select: 'row',
                 dragColumn: true,
-                tooltip: this.tipsRender,
+                tooltip: true,
                 resizeColumn: { size: 6 },
                 columns: goodsRatingTableColumns.getColumns(),
                 onClick:{
-                    'good-favorite-icon': function(event, cell, target){
-                        thisVueCompRef.favorites[thisVueCompRef.data.goods[cell.row - 1].id] = !thisVueCompRef.favorites[thisVueCompRef.data.goods[cell.row - 1].id];
-                        localStorage.setItem('favorites', JSON.stringify(thisVueCompRef.favorites));
-                        this.render();
+                    'good-favorite-icon': (event, cell, target) => {
+                        this.favorites[this.data.goods[cell.row - 1].id] = !this.favorites[this.data.goods[cell.row - 1].id];
+                        localStorage.setItem('favorites', JSON.stringify(this.favorites));
+                        this.goodsRatingTableWebixCtrl.render();
                     }
                 }
             }
@@ -59,71 +57,44 @@ export default {
         eventsBus.$on('favoritesOnlyChanged', this.favoritesOnlyChanged);
         eventsBus.$on('columnShowChange', this.columnShowChange);
         eventsBus.$on('refreshColumns', this.refreshColumns);
-
-        this.recalcFilteredGoods();
     },
 
     mounted: function () {
+        this.goodsRatingTableWebixCtrl = $$("goodsRatingTableWebixCtrl");
         this.registerFilters();
-        $$("goodsRatingTableWebixCtrl").filterByAll();
     },
 
     methods: {
         searchTextOnChanged: function(data) {
             this.filters.searchText = data;
-            this.recalcFilteredGoods();
-            $$("goodsRatingTableWebixCtrl").filterByAll();
+            this.goodsRatingTableWebixCtrl.filterByAll();
         },
 
         favoritesOnlyChanged: function(data) {
             this.filters.favoritesOnly = data;
-            this.recalcFilteredGoods();
-            $$("goodsRatingTableWebixCtrl").filterByAll();
-        },
-
-        recalcFilteredGoods: function () {
-            let filtered = {};
-            let searchTextLowerCase = this.filters.searchText.toLowerCase();
-
-            for (let i = 0; i < this.data.goods.length; i++) {
-                let good = this.data.goods[i];
-                var addGood = false;
-
-                if (this.filters.favoritesOnly == true) {
-                    if (this.favorites[good.id] == false)
-                        continue;
-                }
-
-                if (good.title.toLowerCase().indexOf(searchTextLowerCase) >= 0)
-                    addGood = true;
-                else {
-                    if (good.code.toString().indexOf(searchTextLowerCase) >= 0)
-                        addGood = true;
-                    else {
-                        if (good.brand.toLowerCase().indexOf(searchTextLowerCase) >= 0)
-                            addGood = true;
-                        else {
-                            if (good.shop.toLowerCase().indexOf(searchTextLowerCase) >= 0)
-                                addGood = true;
-                        }
-                    }
-                }
-                if (addGood) filtered[good.id] = true;
-            }
-
-            this.filteredGoods = filtered;
+            this.goodsRatingTableWebixCtrl.filterByAll();
         },
 
         registerFilters: function () {
-            let thisVueCompRef = this;
+            const thisRef = this;
             function compareFn (cellValue, filterValue, obj) {
-                if (thisVueCompRef.filteredGoods[obj.id] == true)
-                    return true;
-                else
-                    return false;
-            }
+                const searchTextLowerCase = thisRef.filters.searchText.toLowerCase();
 
-            $$("goodsRatingTableWebixCtrl").registerFilter(
+                if ((thisRef.filters.favoritesOnly) && (!thisRef.favorites[obj.id]))
+                    return false;
+
+                if (obj.title.toLowerCase().indexOf(searchTextLowerCase) >= 0)
+                    return true;
+                if (obj.code.toString().indexOf(searchTextLowerCase) >= 0)
+                    return true;
+                if (obj.brand.toLowerCase().indexOf(searchTextLowerCase) >= 0)
+                    return true;
+                if (obj.shop.toLowerCase().indexOf(searchTextLowerCase) >= 0)
+                    return true;
+
+                return false;
+            }
+            this.goodsRatingTableWebixCtrl.registerFilter(
                 document.getElementById("goods-rating-search-input"),
                 {
                     columnId: "any",
@@ -136,7 +107,7 @@ export default {
                 }
             );
 
-            $$("goodsRatingTableWebixCtrl").registerFilter(
+            this.goodsRatingTableWebixCtrl.registerFilter(
                 document.getElementById("goods-rating-favorite-checkbox"),
                 {
                     columnId: "any",
@@ -151,20 +122,16 @@ export default {
         },
 
         columnShowChange: function(column) {
-            if (column.show == true)
-                $$("goodsRatingTableWebixCtrl").showColumn(column.id, {spans: true});
+            if (column.show)
+                this.goodsRatingTableWebixCtrl.showColumn(column.id, {spans: true});
             else
-                $$("goodsRatingTableWebixCtrl").hideColumn(column.id, {spans: false});
+                this.goodsRatingTableWebixCtrl.hideColumn(column.id, {spans: false});
         },
 
         refreshColumns: function() {
-            $$("goodsRatingTableWebixCtrl").refreshColumns(goodsRatingTableColumns.getColumns());
+            this.goodsRatingTableWebixCtrl.refreshColumns(goodsRatingTableColumns.getColumns());
             this.registerFilters();
-            $$("goodsRatingTableWebixCtrl").filterByAll();
-        },
-
-        tipsRender: function(obj, common) { // функция нужна т.к. без нее не работают tooltips в конфиге columns -> tooltip template
-            return '';
+            this.goodsRatingTableWebixCtrl.filterByAll(); // сделать фильтрацию после обнуления значений в фильтрах. иначе список остается отфитрованным по старым значениям
         }
     }
 }

@@ -31,22 +31,13 @@ export default {
         }
     },
 
-    // created: function() {
-    //     this.columns.forEach(column => { column.show = true });
-    // },
-
     methods: {
         showGoodsRatingSettingsWindow: function() {
             this.showWindow = true;
         },
 
         columnShowReset: function() {
-            this.columns.forEach(column => {
-                if (column.show == false) {
-                    column.show = true;
-                    eventsBus.$emit('columnShowChange', column);
-                }
-            });
+            this.columns.forEach(column => { column.show = true });
             eventsBus.$emit('refreshColumns');
         },
 

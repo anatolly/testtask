@@ -6,32 +6,25 @@ export default {
     },
 
     getColumns: function() {
-        let thisRef = this;
-
-        function sortByFavorite(a, b){
-            a = Number(thisRef._vueComp.favorites[a.id]);
-            b = Number(thisRef._vueComp.favorites[b.id]);
-            return a > b ? 1 : (a < b ? -1 : 0);
-        };
-
         return [
-            {   id: "favorite", header: "", settingsHeader: "Избранное", width: 35, sort: sortByFavorite, show: true,
-                template: function (obj, common, value, column, index) {
-                    let favoriteIconStyle = "far";
-                    if (thisRef._vueComp.favorites[obj.id] == true) favoriteIconStyle = "fa";
+            {   id: "favorite", header: "", settingsHeader: "Избранное", width: 35, sort: "text", show: true,
+                template: (obj, common, value, column, index) => {
+                    const favoriteIconStyle = this._vueComp.favorites[obj.id] ? "fa" : "far";
                     return '<i class="' + favoriteIconStyle + ' fa-heart good-favorite-icon"></i>';
-                } },
-            {   id: "lostProfitPersentage", header: ["Упущ %", ""], width: 80, sort: 'int',  show: true},
+                }
+            },
+            {   id: "lostProfitPersentage", header: ["Упущ %", ""], width: 80, sort: 'int', show: true},
             {   id: "pos", header: ["Позиция", ""], adjust: true, sort: 'int', show: true,
                 template: function (obj, common, value, column, index) {
                     if (obj.posChange !== 0)
                         return obj.pos +
                             (obj.posChange > 0 ?
                                 "<span class='highlight highlight-green'>+" + obj.posChange + "</span>" :
-                                "<span class='highlight highlight-red'>" + obj.posChange + "</span>" )
+                                "<span class='highlight highlight-red'>" + obj.posChange + "</span>")
                     else
                         return obj.pos;
-                } },
+                }
+            },
             {   id: "image", header: ["Фото", ""], width: 60, minWidth: 60, maxWidth: 60, show: true,
                 template: "<img src='/goodsImages/#image#' class='good-image-thumb' />",
                 tooltip: "<img src='/goodsImages/#image#' class='good-image' />" },
