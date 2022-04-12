@@ -19,7 +19,7 @@ export default function (favoriteTemplateFn) {
                 if (!obj.imageNotExist)
                     return "<img id='good-image-" + obj.id + "' src='/goodsImages/" + obj.image + "' class='good-image-thumb' \
                                  onerror='this.src=\"/goodsImages/no-image.png\"; \
-                                          $$(\"goodsRatingTableWebixCtrl\").$scope.$parent.data.goods[" + (obj.id - 1) + "].imageNotExist = true;' >"
+                                          this.dispatchEvent(new CustomEvent(\"image-not-exist\", {bubbles: true, detail: {id: " + obj.id + "}}));' >"
                 else
                     return "<img src='/goodsImages/no-image.png' class='good-image-thumb'>";
             },

@@ -20,5 +20,13 @@ export default {
             price: 5930.0, pos: 3, posChange: 1, lostProfitPercentage: 30, stockQtty: 3, userReviewsNum: 1, raiting: 14.57, image: "03.jpg",
             sales: [ 16, 4, 47, 27, 45, 17, 56, 44, 17, 85, 54, 76, 1, 34, 17, 5, 29, 4, 56, 4, 17, 27, 18, 67, 56, 44, 17, 28, 38, 19  ]
         }
-    ]
+    ],
+
+    getGoodById: function(id) {
+        for (let i = 0; i < this.goods.length; i++) {
+            if (this.goods[i].id === id)
+                return this.goods[i];
+        }
+        return null;
+    }
 }

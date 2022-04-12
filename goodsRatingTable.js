@@ -61,6 +61,8 @@ export default {
     mounted: function () {
         this.goodsRatingTableWebixCtrl = $$("goodsRatingTableWebixCtrl");
         this.registerFilters();
+
+        this.goodsRatingTableWebixCtrl.$scope.$el.addEventListener("image-not-exist", e => this.data.getGoodById(e.detail.id).imageNotExist = true);
     },
 
     methods: {
