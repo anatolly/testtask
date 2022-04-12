@@ -32,10 +32,15 @@ export default {
                 dragColumn: true,
                 tooltip: true,
                 resizeColumn: { size: 6 },
-                columns: goodsRatingTableColumns.getColumns(),
+                columns: goodsRatingTableColumns((obj, common, value, column, index) => {
+                    return '<i class="' + (this.favorites[obj.id] ? "fa" : "far") + ' fa-heart good-favorite-icon"></i>'
+                }),
                 onClick:{
                     'good-favorite-icon': (event, cell, target) => {
-                        this.favorites[this.data.goods[cell.row - 1].id] = !this.favorites[this.data.goods[cell.row - 1].id];
+                        if (this.favorites[this.data.goods[cell.row - 1].id])
+                            delete this.favorites[this.data.goods[cell.row - 1].id];
+                        else
+                            this.favorites[this.data.goods[cell.row - 1].id] = true;
                         localStorage.setItem('favorites', JSON.stringify(this.favorites));
                         this.goodsRatingTableWebixCtrl.render();
                     }
@@ -45,13 +50,7 @@ export default {
     },
 
     created: function () {
-        goodsRatingTableColumns.init(this);
-
         this.favorites = JSON.parse(localStorage.getItem('favorites')) || {};
-        this.data.goods.forEach(good => {
-            if (this.favorites[good.id] == null)
-                this.favorites[good.id] = false;
-        });
 
         eventsBus.$on('searchTextChanged', this.searchTextOnChanged);
         eventsBus.$on('favoritesOnlyChanged', this.favoritesOnlyChanged);
@@ -82,13 +81,10 @@ export default {
                 if ((this.filters.favoritesOnly) && (!this.favorites[obj.id]))
                     return false;
 
-                if (obj.title.toLowerCase().indexOf(searchTextLowerCase) >= 0)
-                    return true;
-                if (obj.code.toString().indexOf(searchTextLowerCase) >= 0)
-                    return true;
-                if (obj.brand.toLowerCase().indexOf(searchTextLowerCase) >= 0)
-                    return true;
-                if (obj.shop.toLowerCase().indexOf(searchTextLowerCase) >= 0)
+                if ((obj.title.toLowerCase().indexOf(searchTextLowerCase) >= 0) ||
+                    (obj.code.toString().indexOf(searchTextLowerCase) >= 0) ||
+                    (obj.brand.toLowerCase().indexOf(searchTextLowerCase) >= 0) ||
+                    (obj.shop.toLowerCase().indexOf(searchTextLowerCase) >= 0))
                     return true;
 
                 return false;
@@ -128,9 +124,9 @@ export default {
         },
 
         refreshColumns: function() {
-            this.goodsRatingTableWebixCtrl.refreshColumns(goodsRatingTableColumns.getColumns());
+            this.goodsRatingTableWebixCtrl.refreshColumns(this.webixUIConfig.columns);
             this.registerFilters();
-            this.goodsRatingTableWebixCtrl.filterByAll(); // сделать фильтрацию после обнуления значений в фильтрах. иначе список остается отфитрованным по старым значениям
+            this.goodsRatingTableWebixCtrl.filterByAll(); // делаем фильтрацию после обнуления значений в полях фильтров. иначе список остается отфитрованным по старым значениям
         }
     }
 }

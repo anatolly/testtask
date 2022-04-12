@@ -5,9 +5,9 @@ import eventsBus from "./eventsBus.js";
 export default {
     template: `
         <div>
-            <div class="goods-rating-settings-window-back" :style="{ visibility: showWindow == true ? 'visible' : 'hidden' }" @click="showWindow = false">  </div>
-            <div class="goods-rating-settings-window" :style="{ visibility: showWindow == true ? 'visible' : 'hidden' }">
-                <div @click="showWindow = false"><i class="fas fa-times goods-rating-settings-window-close-icon" /></div>
+            <div class="goods-rating-settings-window-back" :class="{hidden: !showWindow}" @click="showHideGoodsRatingSettingsWindow(false)">  </div>
+            <div class="goods-rating-settings-window" :class="{hidden: !showWindow}">
+                <div @click="showHideGoodsRatingSettingsWindow(false)"><i class="fas fa-times goods-rating-settings-window-close-icon" /></div>
                 <div class="goods-rating-settings-column" v-for="(column, key) in columns" :key="key">
                     <input :id="'columnheader' + key" type="checkbox" v-model="column.show" @change="columnShowOnChange(column)" class="goods-rating-settings-column-checkbox"/>
                     <label :for="'columnheader' + key">
@@ -17,7 +17,7 @@ export default {
                 <button @click="columnShowReset" class="goods-rating-settings-button goods-rating-settings-columns-reset">Сбросить</button>        
             </div>
             
-            <button @click="showGoodsRatingSettingsWindow" class="goods-rating-settings-button">
+            <button @click="showHideGoodsRatingSettingsWindow(true)" class="goods-rating-settings-button">
               <i class="fa fa-cog goods-rating-settings-button-icon"></i>
               Настройка таблицы
             </button>        
@@ -26,14 +26,14 @@ export default {
 
     data() {
         return {
-            columns: goodsRatingTableColumns.getColumns(),
+            columns: goodsRatingTableColumns(null),
             showWindow: false
         }
     },
 
     methods: {
-        showGoodsRatingSettingsWindow: function() {
-            this.showWindow = true;
+        showHideGoodsRatingSettingsWindow: function(value) {
+            this.showWindow = value;
         },
 
         columnShowReset: function() {
